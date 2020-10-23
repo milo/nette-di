@@ -126,7 +126,7 @@ class DependencyChecker
 						$prop->getDocComment(),
 						PHP_VERSION_ID < 80000
 							? ($type ? [$type->getName(), $type->allowsNull()] : null)
-							: (string) $type,
+							: [(string) $type, count($prop->getAttributes(Attributes\Inject::class))],
 					];
 				}
 			}

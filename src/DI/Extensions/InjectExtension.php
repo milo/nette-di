@@ -112,9 +112,10 @@ final class InjectExtension extends DI\CompilerExtension
 		$res = [];
 		foreach (get_class_vars($class) as $name => $foo) {
 			$rp = new \ReflectionProperty($class, $name);
-			if (DI\Helpers::parseAnnotation($rp, 'inject') !== null) {
+			$hasAttr = PHP_VERSION_ID >= 80000 && $rp->getAttributes(DI\Attributes\Inject::class);
+			if ($hasAttr || DI\Helpers::parseAnnotation($rp, 'inject') !== null) {
 				if ($type = Reflection::getPropertyType($rp)) {
-				} elseif ($type = DI\Helpers::parseAnnotation($rp, 'var')) {
+				} elseif (!$hasAttr && ($type = DI\Helpers::parseAnnotation($rp, 'var'))) {
 					$type = Reflection::expandClassName($type, Reflection::getPropertyDeclaringClass($rp));
 				}
 				$res[$name] = $type;

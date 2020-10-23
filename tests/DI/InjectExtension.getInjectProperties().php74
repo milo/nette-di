@@ -32,6 +32,15 @@ namespace A
 	}
 }
 
+namespace E
+{
+	class EClass
+	{
+		#[\Nette\DI\Attributes\Inject]
+		public EInjected $varA;
+	}
+}
+
 namespace
 {
 	use Nette\DI\Extensions\InjectExtension;
@@ -44,5 +53,11 @@ namespace
 		'varA' => 'A\AInjected',
 		'varB' => 'A\B\BInjected',
 		'varC' => 'A\AInjected',
-	], InjectExtension::getInjectProperties('A\AClass'));
+	], InjectExtension::getInjectProperties(A\AClass::class));
+
+	if (PHP_VERSION_ID >= 80000) {
+		Assert::same([
+			'varA' => 'E\EInjected',
+		], InjectExtension::getInjectProperties(E\EClass::class));
+	}
 }
