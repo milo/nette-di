@@ -327,7 +327,7 @@ class Resolver
 
 		if ($item instanceof Definition) {
 			$name = current(array_keys($this->builder->getDefinitions(), $item, true));
-			if ($name == false) {
+			if ($name === false) {
 				throw new ServiceCreationException("Service '{$item->getName()}' not found in definitions.");
 			}
 			$item = new Reference($name);
@@ -569,8 +569,6 @@ class Resolver
 			|| $parameter->isOptional()
 			|| $parameter->isDefaultValueAvailable()
 		) {
-			// !optional + defaultAvailable = func($a = null, $b) since 5.4.7
-			// optional + !defaultAvailable = i.e. Exception::__construct, mysqli::mysqli, ...
 			return $parameter->isDefaultValueAvailable()
 				? Reflection::getParameterDefaultValue($parameter)
 				: null;
