@@ -132,14 +132,15 @@ class DependencyChecker
 			}
 			foreach ($class->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
 				if ($method->getDeclaringClass() == $class) { // intentionally ==
+					$type = $method->getReturnType();
 					$hash[] = [
 						$name,
 						$method->name,
 						$method->getDocComment(),
 						self::hashParameters($method),
-						$method->hasReturnType()
-							? [$method->getReturnType()->getName(), $method->getReturnType()->allowsNull()]
-							: null,
+						PHP_VERSION_ID < 80000
+							? ($type ? [$type->getName(), $type->allowsNull()] : null)
+							: (string) $type,
 					];
 				}
 			}
@@ -158,14 +159,15 @@ class DependencyChecker
 				$method = new \ReflectionFunction($name);
 				$uses = null;
 			}
+			$type = $method->getReturnType();
 			$hash[] = [
 				$name,
 				$uses,
 				$method->getDocComment(),
 				self::hashParameters($method),
-				$method->hasReturnType()
-					? [$method->getReturnType()->getName(), $method->getReturnType()->allowsNull()]
-					: null,
+				PHP_VERSION_ID < 80000
+					? ($type ? [$type->getName(), $type->allowsNull()] : null)
+					: (string) $type,
 			];
 		}
 
@@ -179,8 +181,9 @@ class DependencyChecker
 		foreach ($method->getParameters() as $param) {
 			$res[] = [
 				$param->name,
-				Reflection::getParameterType($param),
-				$param->allowsNull(),
+				PHP_VERSION_ID < 80000
+					? [Reflection::getParameterType($param), $param->allowsNull()]
+					: (string) $param->getType(),
 				$param->isVariadic(),
 				$param->isDefaultValueAvailable()
 					? [Reflection::getParameterDefaultValue($param)]
